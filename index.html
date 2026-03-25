@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ほめストック — もらった褒め言葉を貯めて引き出すアプリ</title>
+<meta name="description" content="誰かにもらった褒め言葉を記録して、落ち込んだ時にガチャで引き出す。あなただけのほめ言葉コレクション。買い切り300円。">
+<meta property="og:title" content="ほめストック">
+<meta property="og:description" content="もらった褒め言葉を貯めて、落ち込んだ時にガチャで引き出す">
+<meta property="og:image" content="icons/icon-512.png">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+/* ── LP 専用スタイル ── */
+body { overflow: auto; }
+
+#lp-wrap {
+  max-width: 600px;
+  margin: 0 auto;
+  min-height: 100vh;
+}
+
+/* Hero */
+.hero {
+  background: linear-gradient(160deg, #fff0f5 0%, #f0eeff 100%);
+  padding: 60px 24px 48px;
+  text-align: center;
+}
+@media (prefers-color-scheme: dark) {
+  .hero { background: linear-gradient(160deg, #2a1520 0%, #1a1528 100%); }
+}
+.hero-badge {
+  display: inline-block;
+  background: var(--primary);
+  color: #fff;
+  border-radius: 50px;
+  padding: 5px 16px;
+  font-size: .82rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  margin-bottom: 20px;
+}
+.hero h1 {
+  font-family: var(--font-serif);
+  font-size: clamp(2rem, 8vw, 3rem);
+  color: var(--primary);
+  margin-bottom: 16px;
+  line-height: 1.2;
+}
+.hero-logo { font-size: 5rem; display: block; margin-bottom: 12px; }
+.hero p {
+  font-size: 1.05rem;
+  color: var(--muted);
+  line-height: 1.8;
+  margin-bottom: 36px;
+}
+
+/* Price box */
+.price-box {
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+  padding: 28px 24px;
+  margin: 0 auto;
+  max-width: 340px;
+  text-align: center;
+  margin-bottom: 16px;
+}
+.price-label { font-size: .85rem; color: var(--muted); margin-bottom: 4px; }
+.price-amount {
+  font-family: var(--font-serif);
+  font-size: 2.8rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+.price-amount span { font-size: 1.1rem; }
+.price-note { font-size: .82rem; color: var(--muted); margin-bottom: 24px; }
+
+#buy-btn {
+  width: 100%;
+  font-size: 1.1rem;
+  padding: 18px;
+  background: linear-gradient(135deg, var(--primary), #e094b0);
+  color: #fff;
+  border-radius: var(--radius);
+  border: none;
+  cursor: pointer;
+  font-weight: 700;
+  box-shadow: 0 4px 16px rgba(245,167,192,.5);
+  transition: transform .15s, box-shadow .15s;
+  text-decoration: none;
+  display: block;
+}
+#buy-btn:active { transform: scale(.97); }
+#buy-btn:hover  { box-shadow: 0 6px 24px rgba(245,167,192,.6); }
+
+.secure-note {
+  font-size: .8rem;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  margin-top: 10px;
+}
+
+/* Features */
+.section { padding: 48px 24px; }
+.section h2 {
+  font-family: var(--font-serif);
+  font-size: 1.6rem;
+  text-align: center;
+  margin-bottom: 32px;
+  line-height: 1.3;
+}
+
+.feature-list { display: flex; flex-direction: column; gap: 20px; }
+.feature-item {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+.feature-icon { font-size: 2.2rem; flex-shrink: 0; }
+.feature-body h3 { font-size: 1rem; font-weight: 700; margin-bottom: 4px; }
+.feature-body p  { font-size: .9rem; color: var(--muted); line-height: 1.6; }
+
+/* Screenshot mockup */
+.mockup-section {
+  padding: 32px 24px;
+  background: linear-gradient(160deg, #fef5f8 0%, #f5f0ff 100%);
+  text-align: center;
+}
+@media (prefers-color-scheme: dark) {
+  .mockup-section { background: linear-gradient(160deg, #251520 0%, #1e1530 100%); }
+}
+.phone-frame {
+  display: inline-block;
+  background: var(--card);
+  border-radius: 30px;
+  box-shadow: var(--shadow-lg);
+  padding: 24px 20px;
+  border: 6px solid var(--text);
+  max-width: 240px;
+  width: 100%;
+  text-align: left;
+}
+.phone-screen {
+  background: var(--bg);
+  border-radius: 16px;
+  overflow: hidden;
+  padding: 20px 16px;
+}
+.mock-header {
+  font-family: var(--font-serif);
+  font-size: 1rem;
+  color: var(--primary);
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+.mock-count {
+  text-align: center;
+  padding: 20px;
+  background: linear-gradient(135deg, #fef0f5, #f0eeff);
+  border-radius: 16px;
+  margin-bottom: 12px;
+}
+.mock-count-num { font-size: 2.5rem; font-weight: 700; color: var(--primary); }
+.mock-btn {
+  background: var(--primary);
+  color: #fff;
+  border-radius: 50px;
+  padding: 10px;
+  text-align: center;
+  font-size: .8rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.mock-btn2 {
+  background: var(--card);
+  border: 1.5px solid var(--border);
+  border-radius: 50px;
+  padding: 10px;
+  text-align: center;
+  font-size: .8rem;
+  font-weight: 500;
+}
+
+/* How to use */
+.steps { display: flex; flex-direction: column; gap: 16px; }
+.step {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+.step-num {
+  width: 36px; height: 36px;
+  background: var(--primary);
+  color: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: .95rem;
+  flex-shrink: 0;
+}
+.step-body h3 { font-size: .95rem; font-weight: 700; margin-bottom: 2px; }
+.step-body p  { font-size: .85rem; color: var(--muted); }
+
+/* FAQ */
+.faq-list { display: flex; flex-direction: column; gap: 12px; }
+.faq-item {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  box-shadow: var(--shadow);
+}
+.faq-q { font-weight: 700; margin-bottom: 6px; font-size: .95rem; }
+.faq-q::before { content: 'Q. '; color: var(--primary); }
+.faq-a { font-size: .88rem; color: var(--muted); line-height: 1.6; }
+.faq-a::before { content: 'A. '; font-weight: 500; }
+
+/* CTA bottom */
+.cta-bottom {
+  padding: 48px 24px;
+  text-align: center;
+  background: linear-gradient(160deg, #fff0f5 0%, #f0eeff 100%);
+}
+@media (prefers-color-scheme: dark) {
+  .cta-bottom { background: linear-gradient(160deg, #2a1520 0%, #1a1528 100%); }
+}
+.cta-bottom h2 { font-family: var(--font-serif); font-size: 1.5rem; margin-bottom: 12px; }
+.cta-bottom p  { color: var(--muted); margin-bottom: 28px; font-size: .95rem; }
+
+/* Footer */
+footer {
+  padding: 24px;
+  text-align: center;
+  font-size: .78rem;
+  color: var(--muted);
+  border-top: 1px solid var(--border);
+}
+footer a { color: var(--muted); }
+
+/* Already have key */
+.already-link {
+  text-align: center;
+  font-size: .85rem;
+  color: var(--muted);
+  margin-top: 12px;
+}
+.already-link a { color: var(--primary); text-decoration: none; font-weight: 500; }
+</style>
+</head>
+<body>
+<div id="lp-wrap">
+
+  <!-- Hero -->
+  <section class="hero">
+    <span class="hero-badge">✨ 買い切り・サブスク不要</span>
+    <span class="hero-logo">🌸</span>
+    <h1>ほめストック</h1>
+    <p>誰かにもらった褒め言葉を記録して、<br>落ち込んだ時にガチャで引き出す。<br>あなただけのほめ言葉コレクション。</p>
+
+    <div class="price-box">
+      <div class="price-label">買い切り価格</div>
+      <div class="price-amount"><span>¥</span>300</div>
+      <div class="price-note">一度買えば永久に使える ・ App Store不要</div>
+      <!-- Stripe Checkout リンク。Phase 2 で実際の決済リンクに差し替え -->
+      <a id="buy-btn" href="app.html" id="buy-btn">
+        🛒 今すぐ購入する（300円）
+      </a>
+      <div class="secure-note">🔒 Stripe による安全な決済</div>
+    </div>
+    <div class="already-link">
+      <a href="app.html">すでに購入済みの方はこちら →</a>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section class="section">
+    <h2>ほめストックでできること</h2>
+    <div class="feature-list">
+      <div class="feature-item">
+        <span class="feature-icon">💌</span>
+        <div class="feature-body">
+          <h3>ほめ言葉を貯める</h3>
+          <p>仕事・家族・友人・恋人・自分など6つのカテゴリに分けて記録。いつ誰に言われたかも残せます。</p>
+        </div>
+      </div>
+      <div class="feature-item">
+        <span class="feature-icon">🎊</span>
+        <div class="feature-body">
+          <h3>ガチャで引き出す</h3>
+          <p>落ち込んだ時、自信をなくした時。ボタンひとつでランダムに過去のほめ言葉が届きます。</p>
+        </div>
+      </div>
+      <div class="feature-item">
+        <span class="feature-icon">📱</span>
+        <div class="feature-body">
+          <h3>ホーム画面に追加できる</h3>
+          <p>ブラウザから「ホーム画面に追加」でアプリのように使えます（PWA対応）。</p>
+        </div>
+      </div>
+      <div class="feature-item">
+        <span class="feature-icon">🔒</span>
+        <div class="feature-body">
+          <h3>データはあなたの端末に</h3>
+          <p>記録はすべて端末内に保存。サーバーには送信されないので安心して使えます。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Mockup -->
+  <section class="mockup-section">
+    <h2 class="section-title" style="margin-bottom:24px">こんな画面です</h2>
+    <div class="phone-frame">
+      <div class="phone-screen">
+        <div class="mock-header">🌸 ほめストック</div>
+        <div class="mock-count">
+          <div style="font-size:.75rem;color:var(--muted)">貯まったほめ言葉</div>
+          <div class="mock-count-num">12</div>
+          <div style="font-size:.75rem;color:var(--muted)">件</div>
+        </div>
+        <div class="mock-btn">🎊 ガチャを引く</div>
+        <div class="mock-btn2">✏️ 新しいほめを記録する</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How to use -->
+  <section class="section">
+    <h2>使い方</h2>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <h3>購入してアプリを開く</h3>
+          <p>300円で購入後、アクセスキーが届きます。app.htmlに入力してスタート。</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <h3>ほめ言葉を記録する</h3>
+          <p>カテゴリを選んで、言われた言葉と日付を入力。保存ボタンで花吹雪が舞います。</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <h3>ガチャで引き出す</h3>
+          <p>落ち込んだ時にガチャボタンを押すと、過去のほめ言葉がランダムで届きます。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="section" style="padding-top: 0;">
+    <h2>よくある質問</h2>
+    <div class="faq-list">
+      <div class="faq-item">
+        <div class="faq-q">App Storeからダウンロードが必要ですか？</div>
+        <div class="faq-a">不要です。ブラウザでそのまま使えます。「ホーム画面に追加」でアプリ感覚で利用できます。</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">データはどこに保存されますか？</div>
+        <div class="faq-a">すべてお使いの端末（ブラウザのlocalStorage）に保存されます。外部サーバーへの送信は一切ありません。</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">機種変更したらデータは消えますか？</div>
+        <div class="faq-a">現在のバージョンではデータは端末内に保存されるため、機種変更時にはデータが引き継がれません。バックアップ機能は今後追加予定です。</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">サブスクリプションはありますか？</div>
+        <div class="faq-a">ありません。一度購入すれば永久に無料でご利用いただけます。</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA bottom -->
+  <section class="cta-bottom">
+    <h2>あなたへのほめ言葉、<br>もっと大切に残そう。</h2>
+    <p>買い切り300円。今すぐ始められます。</p>
+    <a class="btn btn-primary btn-lg" href="app.html" style="display:inline-block;text-decoration:none;max-width:320px;width:100%">
+      🛒 購入して始める（¥300）
+    </a>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <p>ほめストック by AETHERCORE</p>
+    <p style="margin-top:8px">
+      <a href="#">特定商取引法に基づく表記</a> ・
+      <a href="#">プライバシーポリシー</a>
+    </p>
+  </footer>
+
+</div>
+</body>
+</html>

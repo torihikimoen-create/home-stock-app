@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>ほめストック</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#F5A7C0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="ほめストック">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+/* ──── App Layout ──── */
+#app {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  max-width: 480px;
+  margin: 0 auto;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ──── Access Gate ──── */
+#access-gate {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  z-index: 9000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+  text-align: center;
+  gap: 24px;
+}
+#access-gate .logo-big { font-size: 4rem; }
+#access-gate h1 {
+  font-family: var(--font-serif);
+  font-size: 1.8rem;
+  color: var(--primary);
+}
+#access-gate p { color: var(--muted); font-size: .95rem; }
+#key-input-wrap {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+#key-input {
+  width: 100%;
+  padding: 14px 18px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--card);
+  font-size: 1rem;
+  text-align: center;
+  letter-spacing: .08em;
+}
+#key-input:focus { border-color: var(--primary); }
+#key-error { color: #e05c5c; font-size: .88rem; }
+#gate-buy-link {
+  color: var(--primary);
+  font-size: .9rem;
+  text-decoration: none;
+  font-weight: 500;
+}
+#gate-buy-link:hover { text-decoration: underline; }
+
+/* ──── Header ──── */
+#app-header {
+  background: var(--bg);
+  padding: 16px 20px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+#app-header h1 {
+  font-family: var(--font-serif);
+  font-size: 1.3rem;
+  color: var(--primary);
+}
+#app-header .header-badge {
+  background: var(--primary);
+  color: #fff;
+  border-radius: 50px;
+  padding: 4px 12px;
+  font-size: .8rem;
+  font-weight: 700;
+}
+
+/* ──── Views ──── */
+#views {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
+.view {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  padding: 20px 16px calc(var(--nav-h) + 16px);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(12px);
+  transition: opacity .25s, transform .25s;
+}
+.view.active {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+/* ──── Bottom Nav ──── */
+#bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 480px;
+  height: var(--nav-h);
+  background: var(--card);
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: stretch;
+  z-index: 100;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.nav-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  color: var(--muted);
+  font-size: .68rem;
+  font-weight: 500;
+  transition: color .2s;
+  padding: 8px 4px 4px;
+}
+.nav-btn .nav-icon { font-size: 1.5rem; line-height: 1; }
+.nav-btn.active { color: var(--primary); }
+
+/* ──── ホーム画面 ──── */
+#home-count-card {
+  text-align: center;
+  padding: 32px 20px;
+  margin-bottom: 20px;
+  background: linear-gradient(135deg, #fef0f5 0%, #f0eeff 100%);
+}
+@media (prefers-color-scheme: dark) {
+  #home-count-card { background: linear-gradient(135deg, #2a1f25 0%, #1f1f2a 100%); }
+}
+#home-count-card .count-label {
+  font-size: .9rem;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+#home-count-card .count-num {
+  font-family: var(--font-serif);
+  font-size: 3.5rem;
+  font-weight: 700;
+  color: var(--primary);
+  line-height: 1;
+  margin-bottom: 6px;
+}
+#home-count-card .count-unit { font-size: .9rem; color: var(--muted); }
+
+.home-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 8px;
+}
+.home-actions .btn { width: 100%; }
+
+#latest-card { margin-top: 20px; }
+#latest-card .latest-label {
+  font-size: .85rem;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+#latest-praise-item {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+#latest-praise-item .cat-icon { font-size: 2rem; flex-shrink: 0; }
+#latest-praise-item .praise-text-wrap .praise-text {
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.5;
+  margin-bottom: 4px;
+}
+#latest-praise-item .praise-text-wrap .praise-meta {
+  font-size: .8rem;
+  color: var(--muted);
+}
+#home-empty-msg {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--muted);
+  font-size: .95rem;
+  line-height: 1.9;
+}
+#home-empty-msg .empty-icon { font-size: 3rem; margin-bottom: 12px; }
+
+/* ──── 記録画面 ──── */
+.record-section { margin-bottom: 24px; }
+.record-section label {
+  display: block;
+  font-size: .85rem;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  margin-bottom: 10px;
+}
+
+.category-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.cat-btn {
+  background: var(--card);
+  border: 2px solid var(--border);
+  border-radius: 16px;
+  padding: 12px 8px;
+  text-align: center;
+  font-size: .85rem;
+  font-weight: 500;
+  transition: border-color .2s, background .2s, transform .15s;
+  cursor: pointer;
+}
+.cat-btn .cat-icon { font-size: 1.8rem; display: block; margin-bottom: 4px; }
+.cat-btn:active { transform: scale(.95); }
+.cat-btn.selected {
+  border-color: var(--primary);
+  background: #fff0f5;
+}
+@media (prefers-color-scheme: dark) {
+  .cat-btn.selected { background: #2a1a22; }
+}
+
+#praise-text {
+  width: 100%;
+  padding: 14px 16px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--card);
+  resize: none;
+  min-height: 100px;
+  line-height: 1.6;
+  transition: border-color .2s;
+}
+#praise-text:focus { border-color: var(--primary); }
+
+#praise-date {
+  padding: 12px 16px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--card);
+  width: 100%;
+  font-size: 1rem;
+  transition: border-color .2s;
+}
+#praise-date:focus { border-color: var(--primary); }
+
+#save-btn {
+  width: 100%;
+  margin-top: 8px;
+}
+
+/* Save sparkle animation */
+@keyframes sparkle {
+  0%   { transform: scale(1); }
+  30%  { transform: scale(1.08); }
+  60%  { transform: scale(.97); }
+  100% { transform: scale(1); }
+}
+.sparkle-anim { animation: sparkle .5s ease; }
+
+/* ──── ガチャ画面 ──── */
+#gacha-view {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 70vh;
+}
+.gacha-title {
+  font-family: var(--font-serif);
+  font-size: 1.5rem;
+  color: var(--primary);
+  text-align: center;
+  margin-bottom: 8px;
+}
+.gacha-sub {
+  color: var(--muted);
+  font-size: .9rem;
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+#gacha-machine {
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  box-shadow: 0 8px 32px rgba(245,167,192,.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 5rem;
+  cursor: pointer;
+  transition: transform .15s, box-shadow .15s;
+  margin-bottom: 32px;
+  user-select: none;
+}
+#gacha-machine:hover {
+  transform: scale(1.04);
+  box-shadow: 0 12px 40px rgba(245,167,192,.5);
+}
+#gacha-machine:active { transform: scale(.96); }
+
+@keyframes gachaSpin {
+  0%   { transform: rotate(0deg) scale(1); }
+  25%  { transform: rotate(-8deg) scale(1.06); }
+  75%  { transform: rotate(8deg) scale(1.06); }
+  100% { transform: rotate(0deg) scale(1); }
+}
+.gacha-spinning { animation: gachaSpin .4s ease-in-out; }
+
+/* Result card */
+#gacha-result {
+  width: 100%;
+  max-width: 360px;
+  display: none;
+}
+#gacha-result.show { display: block; animation: resultAppear .5s cubic-bezier(.34,1.56,.64,1) both; }
+@keyframes resultAppear {
+  from { opacity: 0; transform: scale(.8) translateY(20px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+#gacha-result-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+  padding: 28px 24px;
+  text-align: center;
+  border: 2px solid var(--primary);
+  margin-bottom: 16px;
+}
+#result-cat-icon { font-size: 3rem; margin-bottom: 8px; }
+#result-category {
+  font-size: .85rem;
+  color: var(--primary);
+  font-weight: 700;
+  margin-bottom: 12px;
+  letter-spacing: .06em;
+}
+#result-text {
+  font-family: var(--font-serif);
+  font-size: 1.2rem;
+  line-height: 1.7;
+  color: var(--text);
+  margin-bottom: 12px;
+}
+#result-date { font-size: .8rem; color: var(--muted); }
+
+.gacha-btns { display: flex; gap: 10px; }
+.gacha-btns .btn { flex: 1; }
+
+#gacha-empty {
+  text-align: center;
+  color: var(--muted);
+  padding: 20px;
+  font-size: .95rem;
+  line-height: 1.9;
+}
+
+/* ──── 一覧画面 ──── */
+.filter-bar {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  margin-bottom: 16px;
+  scrollbar-width: none;
+}
+.filter-bar::-webkit-scrollbar { display: none; }
+.filter-chip {
+  flex-shrink: 0;
+  padding: 7px 16px;
+  border-radius: 50px;
+  background: var(--card);
+  border: 1.5px solid var(--border);
+  font-size: .85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background .2s, border-color .2s, color .2s;
+  white-space: nowrap;
+}
+.filter-chip.active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+}
+
+#list-count {
+  font-size: .85rem;
+  color: var(--muted);
+  margin-bottom: 12px;
+}
+
+#praise-list { display: flex; flex-direction: column; gap: 10px; }
+
+.praise-item {
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 16px;
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  transition: opacity .25s;
+  cursor: default;
+  position: relative;
+  overflow: hidden;
+}
+.praise-item .pi-icon { font-size: 2rem; flex-shrink: 0; }
+.praise-item .pi-body { flex: 1; min-width: 0; }
+.praise-item .pi-cat {
+  font-size: .78rem;
+  color: var(--primary);
+  font-weight: 700;
+  letter-spacing: .04em;
+  margin-bottom: 4px;
+}
+.praise-item .pi-text {
+  font-size: .95rem;
+  line-height: 1.55;
+  margin-bottom: 4px;
+  word-break: break-all;
+}
+.praise-item .pi-date { font-size: .78rem; color: var(--muted); }
+.praise-item .pi-del {
+  background: #e05c5c;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 4px 10px;
+  font-size: .78rem;
+  font-weight: 700;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity .2s;
+  flex-shrink: 0;
+  align-self: flex-start;
+  margin-top: 2px;
+}
+.praise-item.long-press .pi-del { opacity: 1; }
+.praise-item.deleting { opacity: 0; transform: translateX(20px); transition: opacity .3s, transform .3s; }
+
+#list-empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--muted);
+}
+#list-empty .empty-icon { font-size: 3rem; margin-bottom: 12px; }
+</style>
+</head>
+<body>
+
+<!-- ── Toast ── -->
+<div id="toast" aria-live="polite"></div>
+
+<!-- ── Particles ── -->
+<div id="particles"></div>
+
+<!-- ── App ── -->
+<div id="app">
+
+  <!-- Access Gate -->
+  <div id="access-gate" class="hidden">
+    <div class="logo-big">🌸</div>
+    <h1>ほめストック</h1>
+    <p>アクセスキーを入力してください。<br>購入後にメールでお届けしたキーです。</p>
+    <div id="key-input-wrap">
+      <input id="key-input" type="text" placeholder="xxxx-xxxx-xxxx-xxxx" autocomplete="off" spellcheck="false">
+      <button id="key-submit-btn" class="btn btn-primary">アクセスする</button>
+      <span id="key-error" class="hidden">キーが正しくありません。もう一度確認してください。</span>
+    </div>
+    <a id="gate-buy-link" href="index.html">まだ購入していない方はこちら →</a>
+  </div>
+
+  <!-- Header -->
+  <header id="app-header">
+    <h1>🌸 ほめストック</h1>
+    <span id="header-count-badge" class="header-badge">0 件</span>
+  </header>
+
+  <!-- Views container -->
+  <div id="views">
+
+    <!-- ホーム -->
+    <section id="view-home" class="view active" role="main" aria-label="ホーム">
+      <div id="home-count-card" class="card">
+        <div class="count-label">貯まったほめ言葉</div>
+        <div class="count-num" id="home-count">0</div>
+        <div class="count-unit">件</div>
+      </div>
+      <div class="home-actions">
+        <button class="btn btn-primary btn-lg" id="home-gacha-btn">
+          🎊 ガチャを引く
+        </button>
+        <button class="btn btn-secondary btn-lg" id="home-record-btn">
+          ✏️ 新しいほめを記録する
+        </button>
+      </div>
+      <div id="latest-card" class="card hidden">
+        <div class="latest-label">直近のほめ言葉</div>
+        <div id="latest-praise-item">
+          <div class="cat-icon" id="latest-cat-icon">💼</div>
+          <div class="praise-text-wrap">
+            <div class="praise-text" id="latest-praise-text"></div>
+            <div class="praise-meta" id="latest-praise-meta"></div>
+          </div>
+        </div>
+      </div>
+      <div id="home-empty-msg">
+        <div class="empty-icon">💌</div>
+        <p>まだほめ言葉が貯まっていません。<br>誰かにもらった言葉を記録してみよう。</p>
+      </div>
+    </section>
+
+    <!-- 記録 -->
+    <section id="view-record" class="view" role="main" aria-label="記録">
+      <h2 class="section-title">ほめを記録する</h2>
+
+      <div class="record-section">
+        <label>カテゴリ</label>
+        <div class="category-grid" id="category-grid">
+          <!-- JS で生成 -->
+        </div>
+      </div>
+
+      <div class="record-section">
+        <label for="praise-text">何を言われた？</label>
+        <textarea id="praise-text" placeholder="例：「いつも丁寧な仕事ぶりで助かってます」" rows="4" maxlength="300"></textarea>
+      </div>
+
+      <div class="record-section">
+        <label for="praise-date">日付</label>
+        <input type="date" id="praise-date">
+      </div>
+
+      <button class="btn btn-primary btn-lg" id="save-btn">
+        💾 保存する
+      </button>
+    </section>
+
+    <!-- ガチャ -->
+    <section id="gacha-view" class="view" role="main" aria-label="ガチャ">
+      <h2 class="gacha-title">ほめガチャ</h2>
+      <p class="gacha-sub">ボタンを押してほめ言葉を引き出そう</p>
+
+      <div id="gacha-machine" title="ガチャを引く" role="button" tabindex="0" aria-label="ガチャを引く">
+        🎊
+      </div>
+
+      <div id="gacha-result">
+        <div id="gacha-result-card">
+          <div id="result-cat-icon">💼</div>
+          <div id="result-category">仕事</div>
+          <div id="result-text"></div>
+          <div id="result-date"></div>
+        </div>
+        <div class="gacha-btns">
+          <button class="btn btn-primary" id="gacha-again-btn">もう1回 🎊</button>
+          <button class="btn btn-secondary" id="gacha-close-btn">閉じる</button>
+        </div>
+      </div>
+
+      <div id="gacha-empty" class="hidden">
+        <p>📭 まだほめ言葉がありません。<br>まず記録画面で登録してみよう！</p>
+        <button class="btn btn-primary" style="margin-top:16px" id="gacha-go-record-btn">
+          ✏️ 記録する
+        </button>
+      </div>
+    </section>
+
+    <!-- 一覧 -->
+    <section id="view-list" class="view" role="main" aria-label="一覧">
+      <h2 class="section-title">ほめ言葉一覧</h2>
+
+      <div class="filter-bar" id="filter-bar">
+        <!-- JS で生成 -->
+      </div>
+
+      <div id="list-count"></div>
+      <div id="praise-list"></div>
+      <div id="list-empty" class="hidden">
+        <div class="empty-icon">📭</div>
+        <p>まだ記録がありません。</p>
+      </div>
+    </section>
+
+  </div><!-- /views -->
+
+  <!-- Bottom Nav -->
+  <nav id="bottom-nav" role="navigation" aria-label="メインナビ">
+    <button class="nav-btn active" data-view="home" aria-label="ホーム">
+      <span class="nav-icon">🏠</span>ホーム
+    </button>
+    <button class="nav-btn" data-view="record" aria-label="記録">
+      <span class="nav-icon">✏️</span>記録
+    </button>
+    <button class="nav-btn" data-view="gacha" aria-label="ガチャ">
+      <span class="nav-icon">🎊</span>ガチャ
+    </button>
+    <button class="nav-btn" data-view="list" aria-label="一覧">
+      <span class="nav-icon">📋</span>一覧
+    </button>
+  </nav>
+
+</div><!-- /app -->
+
+<script>
+/* ══════════════════════════════════════════════════════════
+   ほめストック — App Script
+══════════════════════════════════════════════════════════ */
+
+// ── 定数 ────────────────────────────────────────────────
+const STORAGE_KEY  = 'hm_praises';
+const ACCESS_KEY   = 'hm_access';
+// 開発用: 空にするとキー認証なしで使用可能。本番は購入者のキーを検証するサーバーが必要。
+// Phase 2 で Stripe CHECKOUT_SESSION_ID を検証する予定。
+const REQUIRE_KEY  = false; // GitHub Pages テスト用は false
+
+const CATEGORIES = [
+  { id: 'work',   label: '仕事',   icon: '💼' },
+  { id: 'family', label: '家族',   icon: '🏠' },
+  { id: 'friend', label: '友人',   icon: '👫' },
+  { id: 'love',   label: '恋人',   icon: '💕' },
+  { id: 'self',   label: '自分',   icon: '✨' },
+  { id: 'other',  label: 'その他', icon: '🌟' },
+];
+
+const PARTICLE_CHARS = ['🌸','⭐','🌼','💫','🎉','🌺','✨','🎊','🌷','💖'];
+
+// ── State ────────────────────────────────────────────────
+let praises = [];
+let selectedCategory = CATEGORIES[0].id;
+let currentFilter = 'all';
+
+// ── Helpers ──────────────────────────────────────────────
+function uuid() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+    const r = Math.random() * 16 | 0;
+    return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+  });
+}
+
+function today() {
+  return new Date().toISOString().split('T')[0];
+}
+
+function formatDate(d) {
+  const [y, m, day] = d.split('-');
+  return `${y}年${parseInt(m)}月${parseInt(day)}日`;
+}
+
+function getCat(id) {
+  return CATEGORIES.find(c => c.id === id) || CATEGORIES[5];
+}
+
+function loadPraises() {
+  try {
+    praises = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+  } catch { praises = []; }
+}
+
+function savePraises() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(praises));
+}
+
+function showToast(msg, duration = 2200) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), duration);
+}
+
+function launchParticles(count = 18) {
+  const container = document.getElementById('particles');
+  for (let i = 0; i < count; i++) {
+    setTimeout(() => {
+      const el = document.createElement('div');
+      el.className = 'particle';
+      el.textContent = PARTICLE_CHARS[Math.floor(Math.random() * PARTICLE_CHARS.length)];
+      el.style.left  = Math.random() * 100 + 'vw';
+      el.style.top   = (60 + Math.random() * 30) + 'vh';
+      el.style.animationDuration = (1.2 + Math.random() * 1) + 's';
+      container.appendChild(el);
+      setTimeout(() => el.remove(), 2400);
+    }, i * 60);
+  }
+}
+
+// ── Access Gate ──────────────────────────────────────────
+function checkAccess() {
+  if (!REQUIRE_KEY) { initApp(); return; }
+
+  const stored = localStorage.getItem(ACCESS_KEY);
+  if (stored) { initApp(); return; }
+
+  // URLパラメータ（Stripe success_url から）
+  const params = new URLSearchParams(location.search);
+  const keyParam = params.get('key');
+  if (keyParam && keyParam.length > 8) {
+    localStorage.setItem(ACCESS_KEY, keyParam);
+    // URLをクリーン（キーをURLバーから消す）
+    history.replaceState(null, '', location.pathname);
+    initApp();
+    return;
+  }
+
+  // Gate を表示
+  document.getElementById('access-gate').classList.remove('hidden');
+}
+
+document.getElementById('key-submit-btn').addEventListener('click', () => {
+  const val = document.getElementById('key-input').value.trim();
+  const err  = document.getElementById('key-error');
+  // Phase 2: サーバーで検証予定。今は長さチェックのみ
+  if (val.length >= 6) {
+    err.classList.add('hidden');
+    localStorage.setItem(ACCESS_KEY, val);
+    document.getElementById('access-gate').classList.add('hidden');
+    initApp();
+  } else {
+    err.classList.remove('hidden');
+  }
+});
+
+// ── Navigation ───────────────────────────────────────────
+let activeView = 'home';
+
+function switchView(view) {
+  document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+
+  const viewEl = document.getElementById(`view-${view}`);
+  if (!viewEl) return;
+  viewEl.classList.add('active');
+
+  document.querySelectorAll('.nav-btn').forEach(btn => {
+    if (btn.dataset.view === view) btn.classList.add('active');
+  });
+  activeView = view;
+
+  if (view === 'gacha') setupGachaView();
+  if (view === 'list')  renderList();
+  if (view === 'home')  renderHome();
+}
+
+document.querySelectorAll('.nav-btn').forEach(btn => {
+  btn.addEventListener('click', () => switchView(btn.dataset.view));
+});
+
+// ── Home View ────────────────────────────────────────────
+function renderHome() {
+  const count = praises.length;
+  document.getElementById('home-count').textContent = count;
+  document.getElementById('header-count-badge').textContent = `${count} 件`;
+
+  const emptyMsg   = document.getElementById('home-empty-msg');
+  const latestCard = document.getElementById('latest-card');
+
+  if (count === 0) {
+    emptyMsg.classList.remove('hidden');
+    latestCard.classList.add('hidden');
+  } else {
+    emptyMsg.classList.add('hidden');
+    latestCard.classList.remove('hidden');
+    const latest = [...praises].sort((a,b) => (b.createdAt||'').localeCompare(a.createdAt||''))[0];
+    const cat    = getCat(latest.category);
+    document.getElementById('latest-cat-icon').textContent  = cat.icon;
+    document.getElementById('latest-praise-text').textContent = latest.text;
+    document.getElementById('latest-praise-meta').textContent = `${cat.label} ・ ${formatDate(latest.date)}`;
+  }
+}
+
+document.getElementById('home-gacha-btn').addEventListener('click', () => {
+  if (praises.length === 0) {
+    showToast('まずほめ言葉を記録してね💌');
+    return;
+  }
+  switchView('gacha');
+  setTimeout(pullGacha, 300);
+});
+
+document.getElementById('home-record-btn').addEventListener('click', () => switchView('record'));
+
+// ── Record View ──────────────────────────────────────────
+function buildCategoryGrid() {
+  const grid = document.getElementById('category-grid');
+  grid.innerHTML = '';
+  CATEGORIES.forEach(cat => {
+    const btn = document.createElement('button');
+    btn.className = 'cat-btn' + (cat.id === selectedCategory ? ' selected' : '');
+    btn.dataset.id = cat.id;
+    btn.innerHTML = `<span class="cat-icon">${cat.icon}</span>${cat.label}`;
+    btn.addEventListener('click', () => {
+      selectedCategory = cat.id;
+      document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+    });
+    grid.appendChild(btn);
+  });
+}
+
+// 今日の日付をデフォルトセット
+document.getElementById('praise-date').value = today();
+
+document.getElementById('save-btn').addEventListener('click', () => {
+  const text = document.getElementById('praise-text').value.trim();
+  const date = document.getElementById('praise-date').value;
+
+  if (!text) { showToast('内容を入力してください'); return; }
+  if (!date) { showToast('日付を選んでください'); return; }
+
+  const praise = {
+    id:        uuid(),
+    category:  selectedCategory,
+    text,
+    date,
+    createdAt: new Date().toISOString(),
+  };
+  praises.unshift(praise);
+  savePraises();
+
+  // Reset form
+  document.getElementById('praise-text').value = '';
+  document.getElementById('praise-date').value = today();
+
+  // Sparkle animation on button
+  const btn = document.getElementById('save-btn');
+  btn.classList.add('sparkle-anim');
+  btn.textContent = '🎉 保存しました！';
+  setTimeout(() => {
+    btn.classList.remove('sparkle-anim');
+    btn.textContent = '💾 保存する';
+  }, 1500);
+
+  launchParticles(14);
+  renderHome();
+  showToast('ほめ言葉を保存しました 🌸');
+});
+
+// ── Gacha View ───────────────────────────────────────────
+function setupGachaView() {
+  const resultEl = document.getElementById('gacha-result');
+  const emptyEl  = document.getElementById('gacha-empty');
+  const machineEl = document.getElementById('gacha-machine');
+
+  if (praises.length === 0) {
+    resultEl.style.display = 'none';
+    emptyEl.classList.remove('hidden');
+    machineEl.style.opacity = '.4';
+    machineEl.style.pointerEvents = 'none';
+  } else {
+    emptyEl.classList.add('hidden');
+    machineEl.style.opacity = '';
+    machineEl.style.pointerEvents = '';
+  }
+}
+
+function pullGacha() {
+  if (praises.length === 0) return;
+
+  const machineEl = document.getElementById('gacha-machine');
+  const resultEl  = document.getElementById('gacha-result');
+
+  // Spin animation
+  machineEl.classList.remove('gacha-spinning');
+  void machineEl.offsetWidth; // reflow
+  machineEl.classList.add('gacha-spinning');
+  machineEl.textContent = '🎊';
+
+  setTimeout(() => {
+    const praise = praises[Math.floor(Math.random() * praises.length)];
+    const cat    = getCat(praise.category);
+
+    document.getElementById('result-cat-icon').textContent   = cat.icon;
+    document.getElementById('result-category').textContent   = cat.label;
+    document.getElementById('result-text').textContent       = praise.text;
+    document.getElementById('result-date').textContent       = formatDate(praise.date);
+
+    resultEl.style.display = '';
+    resultEl.classList.remove('show');
+    void resultEl.offsetWidth;
+    resultEl.classList.add('show');
+
+    launchParticles(20);
+  }, 420);
+}
+
+document.getElementById('gacha-machine').addEventListener('click', pullGacha);
+document.getElementById('gacha-machine').addEventListener('keydown', e => {
+  if (e.key === 'Enter' || e.key === ' ') pullGacha();
+});
+document.getElementById('gacha-again-btn').addEventListener('click', pullGacha);
+document.getElementById('gacha-close-btn').addEventListener('click', () => {
+  document.getElementById('gacha-result').style.display = 'none';
+});
+document.getElementById('gacha-go-record-btn')?.addEventListener('click', () => switchView('record'));
+
+// ── List View ────────────────────────────────────────────
+function buildFilterBar() {
+  const bar = document.getElementById('filter-bar');
+  bar.innerHTML = '';
+  const all = document.createElement('button');
+  all.className = `filter-chip ${currentFilter === 'all' ? 'active' : ''}`;
+  all.textContent = 'すべて';
+  all.addEventListener('click', () => { currentFilter = 'all'; renderList(); });
+  bar.appendChild(all);
+
+  CATEGORIES.forEach(cat => {
+    const chip = document.createElement('button');
+    chip.className = `filter-chip ${currentFilter === cat.id ? 'active' : ''}`;
+    chip.textContent = `${cat.icon} ${cat.label}`;
+    chip.addEventListener('click', () => { currentFilter = cat.id; renderList(); });
+    bar.appendChild(chip);
+  });
+}
+
+let longPressTimer = null;
+
+function renderList() {
+  buildFilterBar();
+
+  const filtered = currentFilter === 'all'
+    ? praises
+    : praises.filter(p => p.category === currentFilter);
+
+  document.getElementById('list-count').textContent = `${filtered.length} 件`;
+
+  const listEl  = document.getElementById('praise-list');
+  const emptyEl = document.getElementById('list-empty');
+  listEl.innerHTML = '';
+
+  if (filtered.length === 0) {
+    emptyEl.classList.remove('hidden');
+    return;
+  }
+  emptyEl.classList.add('hidden');
+
+  filtered.forEach(praise => {
+    const cat  = getCat(praise.category);
+    const item = document.createElement('div');
+    item.className = 'praise-item';
+    item.dataset.id = praise.id;
+    item.innerHTML = `
+      <div class="pi-icon">${cat.icon}</div>
+      <div class="pi-body">
+        <div class="pi-cat">${cat.label}</div>
+        <div class="pi-text">${escHtml(praise.text)}</div>
+        <div class="pi-date">${formatDate(praise.date)}</div>
+      </div>
+      <button class="pi-del" aria-label="削除" title="削除">削除</button>
+    `;
+
+    // Long press to reveal delete button
+    const startLong = () => {
+      longPressTimer = setTimeout(() => {
+        document.querySelectorAll('.praise-item').forEach(el => el.classList.remove('long-press'));
+        item.classList.add('long-press');
+      }, 600);
+    };
+    const cancelLong = () => { clearTimeout(longPressTimer); };
+
+    item.addEventListener('touchstart', startLong, { passive: true });
+    item.addEventListener('touchend',   cancelLong);
+    item.addEventListener('touchmove',  cancelLong);
+    item.addEventListener('mousedown',  startLong);
+    item.addEventListener('mouseup',    cancelLong);
+
+    // Delete button
+    item.querySelector('.pi-del').addEventListener('click', () => {
+      if (!item.classList.contains('long-press') && !confirm('このほめ言葉を削除しますか？')) return;
+      item.classList.add('deleting');
+      setTimeout(() => {
+        praises = praises.filter(p => p.id !== praise.id);
+        savePraises();
+        renderList();
+        renderHome();
+        showToast('削除しました');
+      }, 300);
+    });
+
+    listEl.appendChild(item);
+  });
+}
+
+// Dismiss long-press on outside click
+document.addEventListener('click', e => {
+  if (!e.target.closest('.praise-item')) {
+    document.querySelectorAll('.praise-item').forEach(el => el.classList.remove('long-press'));
+  }
+});
+
+// ── Utils ────────────────────────────────────────────────
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── Service Worker ───────────────────────────────────────
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+}
+
+// ── Init ─────────────────────────────────────────────────
+function initApp() {
+  loadPraises();
+  buildCategoryGrid();
+  renderHome();
+}
+
+checkAccess();
+</script>
+</body>
+</html>
