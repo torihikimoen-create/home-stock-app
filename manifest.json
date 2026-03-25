@@ -2,8 +2,8 @@
   "name": "ほめストック",
   "short_name": "ほめストック",
   "description": "もらった褒め言葉を貯めて、落ち込んだ時に引き出す",
-  "start_url": "/app.html",
-  "scope": "/",
+  "start_url": "/home-stock-app/app.html",
+  "scope": "/home-stock-app/",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#FDF8F5",
@@ -30,14 +30,14 @@
       "name": "ガチャを引く",
       "short_name": "ガチャ",
       "description": "ほめ言葉をランダムに引き出す",
-      "url": "/app.html#gacha",
+      "url": "/home-stock-app/app.html#gacha",
       "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
     },
     {
       "name": "ほめを記録する",
       "short_name": "記録",
       "description": "新しいほめ言葉を記録する",
-      "url": "/app.html#record",
+      "url": "/home-stock-app/app.html#record",
       "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
     }
   ]

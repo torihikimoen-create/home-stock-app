@@ -6,14 +6,15 @@
 const CACHE_NAME = 'home-stock-v1';
 
 // キャッシュするリソース
+const BASE = '/home-stock-app';
 const PRECACHE_URLS = [
-  '/',
-  '/index.html',
-  '/app.html',
-  '/style.css',
-  '/manifest.json',
-  '/icons/icon-192.png',
-  '/icons/icon-512.png',
+  BASE + '/',
+  BASE + '/index.html',
+  BASE + '/app.html',
+  BASE + '/style.css',
+  BASE + '/manifest.json',
+  BASE + '/icons/icon-192.png',
+  BASE + '/icons/icon-512.png',
   // Google Fonts はキャッシュ対象外（ネットワーク優先）
 ];
 
@@ -72,7 +73,7 @@ self.addEventListener('fetch', event => {
       }).catch(() => {
         // オフライン時のフォールバック
         if (request.destination === 'document') {
-          return caches.match('/app.html');
+          return caches.match(BASE + '/app.html');
         }
       });
     })
