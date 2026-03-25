@@ -246,6 +246,55 @@ footer {
 }
 footer a { color: var(--muted); }
 
+/* Add to Home Screen guide */
+.add-to-home {
+  margin: 40px auto;
+  max-width: 480px;
+  padding: 24px;
+  background: var(--card);
+  border-radius: 20px;
+  box-shadow: var(--shadow);
+}
+.add-to-home h2 {
+  text-align: center;
+  font-size: 1.2rem;
+  margin-bottom: 20px;
+  color: var(--text);
+}
+.device-guide {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.guide-item {
+  background: var(--bg);
+  border-radius: 12px;
+  padding: 16px;
+}
+.guide-item h3 {
+  font-size: 1rem;
+  margin-bottom: 10px;
+  color: var(--primary);
+}
+.guide-item ol {
+  padding-left: 20px;
+  font-size: .9rem;
+  color: var(--muted);
+  line-height: 1.8;
+}
+.note {
+  font-size: .75rem;
+  color: var(--muted);
+  margin-top: 8px;
+}
+.add-note {
+  text-align: center;
+  font-size: .85rem;
+  color: var(--muted);
+  margin-top: 20px;
+  line-height: 1.6;
+}
+
 /* Already have key */
 .already-link {
   text-align: center;
@@ -279,6 +328,33 @@ footer a { color: var(--muted); }
     <div class="already-link">
       <a href="app.html">すでに購入済みの方はこちら →</a>
     </div>
+  </section>
+
+  <!-- ホーム画面に追加する方法 -->
+  <section class="add-to-home">
+    <h2>📱 アプリとして使う方法</h2>
+    <div class="device-guide">
+      <div class="guide-item">
+        <h3>🍎 iPhoneの場合</h3>
+        <ol>
+          <li>Safariでこのページを開く</li>
+          <li>下の共有ボタン（□↑）をタップ</li>
+          <li>「ホーム画面に追加」を選ぶ</li>
+          <li>「追加」をタップして完了</li>
+        </ol>
+        <p class="note">※ SafariのみホームへのPWA追加が可能です</p>
+      </div>
+      <div class="guide-item">
+        <h3>🤖 Androidの場合</h3>
+        <ol>
+          <li>Chromeでこのページを開く</li>
+          <li>右上のメニュー（⋮）をタップ</li>
+          <li>「ホーム画面に追加」を選ぶ</li>
+          <li>「追加」をタップして完了</li>
+        </ol>
+      </div>
+    </div>
+    <p class="add-note">ホーム画面に追加すると、アプリのように起動できます。<br>データはあなたのスマホ内に保存されます。</p>
   </section>
 
   <!-- Features -->
